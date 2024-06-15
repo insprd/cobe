@@ -1,6 +1,3 @@
-// Created by Shu Ding 2021.
-// g@shud.in
-
 precision highp float;
 uniform vec2 uResolution;
 uniform vec2 offset;
@@ -8,7 +5,7 @@ uniform float phi;
 uniform float theta;
 uniform float dots;
 uniform float scale;
-uniform vec3 baseColor;
+uniform vec3 baseColor;     // Keep these colors within the P3 gamut
 uniform vec3 markerColor;
 uniform vec3 glowColor;
 uniform vec4 markers[64];
@@ -20,17 +17,6 @@ uniform float opacity;
 uniform float mapBaseBrightness;
 
 uniform sampler2D uTexture;
-
-// const float sqrt5 = sqrt(5.);
-// const float PI = acos(-1.);
-// const float HALF_PI = PI * .5;
-// const float kTau = PI*2.;
-// const float kPhi = (1.+sqrt5)/2.;
-// const float byLogPhiPlusOne = log2(kPhi + 1.);
-// const float twoPiOnPhi = kTau/kPhi;
-// const float phiMinusOne = kPhi-1.;
-// const float r = .8;
-// const float by2P32 = 1./4294967296.;
 
 const float sqrt5 = 2.23606797749979;
 const float PI = 3.141592653589793;
@@ -67,9 +53,7 @@ vec3 nearestFibonacciLattice(vec3 p, out float m) {
   vec2 br1 = fract((f+1.) * phiMinusOne)*kTau - twoPiOnPhi;
   vec2 br2 = -2.*f;
   vec2 sp = vec2(atan(p.y, p.x), p.z-1.);
-  // mat2 invb = mat2(br2.y,-br2.x,-br1.y,br1.x);
-  // vec2 c = floor(invb * sp / (br1.x*br2.y-br2.x*br1.y));
-  vec2 c = floor(vec2(br2.y * sp.x - br1.y * (sp.y * dots + 1.), -br2.x * sp.x + br1.x * (sp.y * dots + 1.)) / (br1.x*br2.y-br2.x*br1.y));
+  vec2 c = floor(vec2(br2.y * sp.x - br1.y * (sp.y * dots + 1.), -br2.x * sp.x + br1.x * (sp.y * dots + 1.))/ (br1.x * br2.y - br2.x * br1.y));
   
   float mindist = PI;
   vec3 minip;
@@ -78,19 +62,8 @@ vec3 nearestFibonacciLattice(vec3 p, out float m) {
     float idx = dot(f, c + o);
     if (idx > dots) continue;
 
-    // float v = idx / kPhi;
-    // float theta = fract(v) * kTau;
-
-    // int iFracV = int(idx) * 2654435769; // signed be like nearest-to-zero fmod; 2^32/phi
-    // float fracV = float(iFracV) * by2P32;
-    // float theta = fracV * kTau;
-
-    // https://github.com/shuding/cobe/issues/16
-    
     float tidx = idx;
     float fracV = 0.;
-
-    // see codegen
 
     if(tidx >= 524288.) { tidx-=524288.; fracV += 0.8038937048986554; }
     if(tidx >= 262144.) { tidx-=262144.; fracV += 0.9019468524493277; }
@@ -128,7 +101,6 @@ vec3 nearestFibonacciLattice(vec3 p, out float m) {
   }
 
   m = mindist;
-
   return minip.xzy;
 }
 

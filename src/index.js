@@ -57,6 +57,7 @@ export default (canvas, opts) => {
   }
 
   // See https://github.com/shuding/cobe/pull/34.
+  // Check for WebGL2 support for better floating-point precision
   const contextType = canvas.getContext("webgl2")
     ? "webgl2"
     : canvas.getContext("webgl")
@@ -81,8 +82,8 @@ export default (canvas, opts) => {
         const srcType = gl.UNSIGNED_BYTE
         const TEXTURE_2D = gl.TEXTURE_2D
 
-        const texture = gl.createTexture()
-        gl.bindTexture(TEXTURE_2D, texture)
+        const texture = gl.createTexture();
+        gl.bindTexture(TEXTURE_2D, texture);
         gl.texImage2D(
           TEXTURE_2D,
           0,
@@ -92,8 +93,8 @@ export default (canvas, opts) => {
           0,
           RGBFormat,
           srcType,
-          new Uint8Array([0, 0, 0, 0])
-        )
+          null
+        );
 
         const image = new Image()
         image.onload = () => {
